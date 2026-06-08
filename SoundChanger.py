@@ -245,7 +245,7 @@ class SoundChanger(QWidget):
         )
         print("Saving changes...")
         print(self.sounds_path)
-        if 'main' in self.folder_path:
+        if '/main' in self.folder_path:
             save_path = self.folder_path + self.pack_name
         else:
             save_path = self.folder_path + '/main' + self.pack_name
@@ -257,7 +257,7 @@ class SoundChanger(QWidget):
         self.status_label.setVisible(True)
 
     def delete_temp_folder(self):
-        if 'main' in self.folder_path:
+        if '/main' in self.folder_path:
             temp_path = self.folder_path + self.extract_path
         else:
             temp_path = self.folder_path + '/main' + self.extract_path
