@@ -16,7 +16,7 @@ class SoundChanger(QWidget):
         # Window settings
         self.setWindowTitle("MOHAA Sound Changer")
         self.setFixedSize(800, 600)
-        #self.setWindowIcon(QIcon('icon.ico'))
+        self.setWindowIcon(QIcon('icons/icon.ico'))
 
         # Paths settings
         self.folder_path = None

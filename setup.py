@@ -2,7 +2,7 @@ from cx_Freeze import setup, Executable
 import sys
 base = "Win32GUI" if sys.platform == "win32" else None
 
-executables = [Executable("SoundChanger.py", base=base)]
+executables = [Executable("SoundChanger.py", base=base, icon="icons/icon.ico")]
 
 packages = ["numpy", "PyQt6", "sounddevice", "soundfile"]
 options = {

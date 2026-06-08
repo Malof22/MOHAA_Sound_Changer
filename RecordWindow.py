@@ -12,7 +12,7 @@ class RecordWindow(QWidget):
         # Window settings
         self.setWindowTitle("Record sound")
         self.setFixedSize(400, 200)
-        # self.setWindowIcon(QIcon('icon.ico'))
+        self.setWindowIcon(QIcon('icons/icon.ico'))
 
         # Paths settings
         self.target_path = target_path
