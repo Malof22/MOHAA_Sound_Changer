@@ -1,4 +1,5 @@
 from PyQt6.QtCore import Qt, QUrl
+from PyQt6.QtGui import QIcon
 from PyQt6.QtMultimedia import QMediaPlayer, QAudioOutput
 from PyQt6.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout, QFileDialog, QListWidget, QTreeWidget, \
     QTreeWidgetItem, QMenu, QLabel
@@ -12,11 +13,23 @@ class SoundChanger(QWidget):
     def __init__(self):
         super().__init__()
 
+        # Window settings
         self.setWindowTitle("MOHAA Sound Changer")
+        self.setFixedSize(800, 600)
+        #self.setWindowIcon(QIcon('icon.ico'))
+
+        # Paths settings
         self.folder_path = None
         self.pack_name = '/Pak3.pk3'
         self.extract_path = '/temp'
 
+        # Audio player settings
+        self.player = QMediaPlayer()
+        self.audio_output = QAudioOutput()
+
+        self.player.setAudioOutput(self.audio_output)
+
+        # Layout settings
         self.main_layout = QVBoxLayout()
 
         button = QPushButton("Select MOHAA folder")
@@ -25,12 +38,9 @@ class SoundChanger(QWidget):
 
         self.setLayout(self.main_layout)
 
-        self.player = QMediaPlayer()
-        self.audio_output = QAudioOutput()
-
-        self.player.setAudioOutput(self.audio_output)
-
-        self.setGeometry(0, 0, 800, 600)
+        # When window is closed, delete temp folder
+        self.closeEvent = self.closeEvent
+        self.closeEvent = lambda event: self.delete_temp_folder()
 
     def select_folder(self):
         self.folder_path = QFileDialog.getExistingDirectory(self, "Select MOHAA folder")
@@ -245,6 +255,13 @@ class SoundChanger(QWidget):
         else:
             self.status_label.setText(f"Error saving changes: {result}")
         self.status_label.setVisible(True)
+
+    def delete_temp_folder(self):
+        if 'main' in self.folder_path:
+            temp_path = self.folder_path + self.extract_path
+        else:
+            temp_path = self.folder_path + '/main' + self.extract_path
+        shutil.rmtree(temp_path)
 
     def backup(self, pak_path, bkp_path):
         if os.path.exists(bkp_path):

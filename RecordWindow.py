@@ -1,5 +1,5 @@
 from PyQt6.QtCore import QTimer, Qt
-from PyQt6.QtWidgets import QWidget, QPushButton, QVBoxLayout, QApplication, QLabel, QSlider, QHBoxLayout
+from PyQt6.QtWidgets import QWidget, QPushButton, QVBoxLayout, QApplication, QLabel, QSlider, QHBoxLayout, QCheckBox
 from PyQt6.QtGui import QIcon
 import sounddevice as sd
 import numpy as np
@@ -9,10 +9,15 @@ class RecordWindow(QWidget):
     def __init__(self, target_path):
         super().__init__()
 
+        # Window settings
+        self.setWindowTitle("Record sound")
+        self.setFixedSize(400, 200)
+        # self.setWindowIcon(QIcon('icon.ico'))
+
+        # Paths settings
         self.target_path = target_path
 
-        self.setWindowTitle("Record sound")
-
+        # Layout settings
         layout = QVBoxLayout()
 
         self.label = QLabel(f"Recording to : {target_path.split('/')[-1]}")
@@ -26,14 +31,11 @@ class RecordWindow(QWidget):
         self.play_button.setIcon(QIcon("icons/play.svg"))
         self.stop_button.setEnabled(False)
 
-        #Horizontal layout
         self.buttons_layout = QHBoxLayout()
         self.buttons_layout.addWidget(self.start_button)
         self.buttons_layout.addWidget(self.stop_button)
         self.buttons_layout.addWidget(self.play_button)
         layout.addLayout(self.buttons_layout)
-
-
 
         self.setLayout(layout)
 
@@ -52,6 +54,10 @@ class RecordWindow(QWidget):
 
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_timer)
+
+        self.cut_checkbox = QCheckBox("Cut silence")
+        self.cut_checkbox.setChecked(True)
+        layout.addWidget(self.cut_checkbox)
 
         self.amp_label = QLabel("Amplification :")
         self.amp_label.setEnabled(False)
@@ -74,9 +80,6 @@ class RecordWindow(QWidget):
         layout.addWidget(self.save_button)
         self.save_button.clicked.connect(self.save_audio)
         self.save_button.setEnabled(False)
-
-        #Set heigh and width
-        self.setFixedSize(400, 200)
 
         self.countdown_value = 3
 
@@ -144,6 +147,7 @@ class RecordWindow(QWidget):
         self.timer.stop()
 
         self.stream.stop()
+        print(self.frames)
         self.stream.close()
 
     def play_recording(self):
@@ -168,9 +172,25 @@ class RecordWindow(QWidget):
     def save_audio(self):
         audio = np.concatenate(self.frames, axis=0)
 
+        if self.cut_checkbox.isChecked():
+            # Détection du début du son
+            threshold = 0.02  # à ajuster
+
+            abs_audio = np.abs(audio[:, 0])
+            indices = np.where(abs_audio > threshold)[0]
+
+            if len(indices) > 0:
+                audio = audio[indices[0]:]
+
+            audio = np.clip(audio, -1.0, 1.0)
+
         audio = audio * self.amp_slider.value()
 
-        audio = np.clip(audio, -1.0, 1.0)
+        sf.write(
+            self.target_path,
+            audio,
+            self.sample_rate
+        )
 
         sf.write(
             self.target_path,
