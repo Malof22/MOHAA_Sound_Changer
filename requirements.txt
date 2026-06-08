@@ -1,0 +1,5 @@
+sounddevice~=0.5.5
+numpy~=2.4.6
+soundfile~=0.14.0
+PyQt6~=6.11.0
+PyQt6_sip~=13.11.1
